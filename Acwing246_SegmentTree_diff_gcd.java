@@ -1,9 +1,8 @@
 import java.io.*;
-import java.util.*;
-import java.lang.*;
+import java.util.InputMismatchException;
 
 // calculate the max sum of subarray in a range.
-public class Main implements Runnable
+public class Acwing246_SegmentTree_diff_gcd implements Runnable
 {
     @Override
     public void run() {
@@ -302,7 +301,7 @@ public class Main implements Runnable
 
     public static void main(String args[]) throws Exception
     {
-        new Thread(null, new Main(),"Main",1<<27).start();
+        new Thread(null, new Acwing246_SegmentTree_diff_gcd(),"Main",1<<27).start();
     }
 
 }
