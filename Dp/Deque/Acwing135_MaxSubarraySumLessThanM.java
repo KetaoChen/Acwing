@@ -5,7 +5,7 @@ import java.util.*;
 import java.lang.*;
 
 // calculate the max sum of subarray in a range.
-public class MaxSubarraySumLessThanM implements Runnable
+public class Acwing135_MaxSubarraySumLessThanM implements Runnable
 {
     @Override
     public void run() {
@@ -220,7 +220,7 @@ public class MaxSubarraySumLessThanM implements Runnable
 
     public static void main(String args[]) throws Exception
     {
-        new Thread(null, new MaxSubarraySumLessThanM(),"Main",1<<27).start();
+        new Thread(null, new Acwing135_MaxSubarraySumLessThanM(),"Main",1<<27).start();
     }
 
 }

@@ -1,14 +1,47 @@
+package Dp.Deque;
+
 import java.io.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.InputMismatchException;
 
 
-public class Main implements Runnable
+public class Acwing1087_MinSumAtLeastEveryK implements Runnable
 {
     @Override
     public void run() {
         InputReader in = new InputReader(System.in);
         PrintWriter w = new PrintWriter(System.out);
+        int n = in.nextInt(), k = in.nextInt();
+        int[] arr = new int[n];
+        for (int i = 0; i < n; i++) {
+            arr[i] = in.nextInt();
+        }
 
+        // convert to problem that we need to remove move some numbers.
+        // the numbers should pick at least every k.
+        // dp[i] is the min Value we can get if we pick i.
+
+        Deque<Integer> dq = new ArrayDeque<>();
+        long[] dp = new long[n + 1];
+        dq.offerLast(0);
+        long sum = 0;
+
+        for (int i = 1; i <= n; i++) {
+            dp[i] = dp[dq.peekFirst()] + arr[i - 1];
+            sum += arr[i - 1];
+            while (!dq.isEmpty() && dp[i] < dp[dq.peekLast()]) {
+                dq.pollLast();
+            }
+            dq.offerLast(i);
+            if (i - dq.peekFirst() == k + 1) dq.pollFirst();
+        }
+
+        long min = Long.MAX_VALUE;
+        for (int i = n; i >= n- k; i--) {
+            min = Math.min(min, dp[i]);
+        }
+        w.println(sum - min);
 
         w.flush();
         w.close();
@@ -196,7 +229,7 @@ public class Main implements Runnable
 
     public static void main(String args[]) throws Exception
     {
-        new Thread(null, new Main(),"Main",1<<27).start();
+        new Thread(null, new Acwing1087_MinSumAtLeastEveryK(),"Main",1<<27).start();
     }
 
 }
