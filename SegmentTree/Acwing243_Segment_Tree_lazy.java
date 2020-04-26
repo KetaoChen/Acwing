@@ -1,3 +1,5 @@
+package SegmentTree;
+
 import java.io.*;
 import java.util.InputMismatchException;
 

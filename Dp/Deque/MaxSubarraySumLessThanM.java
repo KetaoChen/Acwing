@@ -1,118 +1,42 @@
+package Dp.Deque;
+
 import java.io.*;
-import java.util.InputMismatchException;
+import java.util.*;
+import java.lang.*;
 
-
-public class Acwing1277_Segment_Tree_Lazy_Multiplication implements Runnable
+// calculate the max sum of subarray in a range.
+public class MaxSubarraySumLessThanM implements Runnable
 {
     @Override
     public void run() {
         InputReader in = new InputReader(System.in);
         PrintWriter w = new PrintWriter(System.out);
+        int n = in.nextInt(), m = in.nextInt();
+        int[] arr = new int[n];
+        for (int i = 0; i < n; i++) {
+            arr[i] = in.nextInt();
+        }
 
-        String[] cur = in.nextLine().split(" ");
-        int n = Integer.parseInt(cur[0]);
-        int p = Integer.parseInt(cur[1]);
-        mod = p;
-
-        cur = in.nextLine().split(" ");
+        Deque<Integer> dq = new ArrayDeque<>();
+        dq.add(0);
+        int res = Integer.MIN_VALUE;
+        // dp[i] is the max sum of subarray end with i
+        int[] prefix = new int[n + 1];
         for (int i = 1; i <= n; i++) {
-            arr[i] = Integer.parseInt(cur[i - 1]);
-        }
-        build(1, 1, n);
-
-        int m = Integer.parseInt(in.nextLine());
-        for (int i = 0; i < m; i++) {
-            cur = in.nextLine().split(" ");
-            int op = Integer.parseInt(cur[0]);
-            int l = Integer.parseInt(cur[1]);
-            int r = Integer.parseInt(cur[2]);
-            if (op == 1) modify(1, l, r, 0, Long.parseLong(cur[3]));
-            else if (op == 2) modify(1, l, r, Long.parseLong(cur[3]), 1);
-            else w.println(query(1, l, r));
+            prefix[i] = prefix[i - 1] + arr[i - 1];
+            res = Math.max(res, prefix[i] - prefix[dq.peekFirst()]);
+            while (!dq.isEmpty() && prefix[i] < prefix[dq.peekLast()]) {
+                dq.pollLast();
+            }
+            dq.offerLast(i);
+            if (i - dq.peekFirst() == m) dq.pollFirst();
         }
 
+        w.println(res);
         w.flush();
         w.close();
     }
 
-    static int N = 100010;
-    static int mod;
-    static int[] arr = new int[N];
-    static Node[] tr = new Node[4 * N];
-
-    static class Node {
-        int left, right;
-        long sum, add, mul;
-        public Node(int l, int r, long s, long a, long m) {
-            left = l;
-            right = r;
-            sum = s;
-            add = a;
-            mul = m;
-        }
-    }
-
-    private static long query(int root, int left, int right) {
-        // System.out.println("start: " + root + " " + left + " " + right + " " + tr[root].sum + " " + tr[root].add);
-        if (tr[root].left >= left && tr[root].right <= right) return tr[root].sum;
-        // before each query, if we need to query children, pushdown the lazy tag
-        pushdown(root);
-        int mid = tr[root].left + tr[root].right >> 1;
-        // System.out.println(tr[root].left + " " + tr[root].right + " " + mid);
-        long res = 0;
-        if (left <= mid) res += query(root << 1, left, right);
-        if (right > mid) res += query(root << 1 | 1, left, right);
-        return res % mod;
-    }
-
-    private static void modify(int root, int left, int right, long val, long m) {
-        // if we can put the lazy tag here, we do it!
-        if (tr[root].left >= left && tr[root].right <= right) {
-            tr[root].mul = tr[root].mul * m % mod;
-            tr[root].sum = (tr[root].sum * m % mod) % mod;
-            tr[root].add = tr[root].add * m % mod;
-            tr[root].add = (tr[root].add + val) % mod;
-            tr[root].sum = (tr[root].sum + (tr[root].right - tr[root].left + 1) * val) % mod;
-            return;
-        }
-        // if we cannot, pushdown this lazy tag first to its children
-        pushdown(root);
-        int mid = tr[root].left + tr[root].right >> 1;
-        if (left <= mid) modify(root << 1, left, right, val, m);
-        if (right > mid) modify(root << 1 | 1, left, right, val, m);
-        pushup(root);
-    }
-
-    private static void pushdown(int root) {
-        Node cur = tr[root], l =  tr[root << 1], r = tr[root << 1 | 1];
-        pushdown(cur, l);
-        pushdown(cur, r);
-        cur.add = 0;
-        cur.mul = 1;
-    }
-
-    private static void pushdown(Node cur, Node child) {
-        child.mul = (child.mul * cur.mul) % mod;
-        child.add = child.add * cur.mul % mod;
-        child.add = (child.add + cur.add) % mod;
-        child.sum = (child.sum * cur.mul % mod + (child.right - child.left + 1) * cur.add) % mod;
-    }
-
-    private static void build(int root, int left, int right) {
-        tr[root] = new Node(left, right, 0, 0, 1);
-        if (left >= right)  {
-            tr[root].sum = arr[left];
-            return;
-        }
-        int mid = left + right >> 1;
-        build(root << 1, left, mid);
-        build(root << 1 | 1, mid + 1, right);
-        pushup(root);
-    }
-
-    private static void pushup(int root) {
-        tr[root].sum = (tr[root << 1].sum + tr[root << 1 | 1].sum) % mod;
-    }
 
 
 
@@ -296,7 +220,7 @@ public class Acwing1277_Segment_Tree_Lazy_Multiplication implements Runnable
 
     public static void main(String args[]) throws Exception
     {
-        new Thread(null, new Acwing1277_Segment_Tree_Lazy_Multiplication(),"Main",1<<27).start();
+        new Thread(null, new MaxSubarraySumLessThanM(),"Main",1<<27).start();
     }
 
 }
