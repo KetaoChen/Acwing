@@ -1,43 +1,82 @@
 package Dp.Deque;
 
 import java.io.*;
-import java.util.*;
-import java.lang.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.InputMismatchException;
 
-// calculate the max sum of subarray in a range.
-public class Acwing135_MaxSubarraySumLessThanM implements Runnable
+
+public class Acwing1088_GasStation_MaxPrefix implements Runnable
 {
     @Override
     public void run() {
         InputReader in = new InputReader(System.in);
         PrintWriter w = new PrintWriter(System.out);
-        int n = in.nextInt(), m = in.nextInt();
-        int[] arr = new int[n];
+        int n = in.nextInt();
+        int[] o = new int[n];
+        int[] d = new int[n];
+        long sum = 0;
         for (int i = 0; i < n; i++) {
-            arr[i] = in.nextInt();
+            o[i] = in.nextInt();
+            d[i] = in.nextInt();
+            sum += (long) o[i] - d[i];
         }
 
-        Deque<Integer> dq = new ArrayDeque<>();
-        dq.add(0);
-        int res = Integer.MIN_VALUE;
+        // consider clock wise first
 
-        // maximum subarray = cur prefix - smallest prefix in the range
-        // use deque to keep the index of smallest index.
-        int[] prefix = new int[n + 1];
-        for (int i = 1; i <= n; i++) {
-            prefix[i] = prefix[i - 1] + arr[i - 1];
-            res = Math.max(res, prefix[i] - prefix[dq.peekFirst()]);
-            while (!dq.isEmpty() && prefix[i] < prefix[dq.peekLast()]) {
+        int[] net = new int[2 * n];
+        for (int i = 0; i < n; i++) {
+            net[i] = o[i] - d[i];
+            net[i + n] = net[i];
+        }
+
+        // 1. calculate the minimum of prefix, starting from each index.
+        // 2. this minimum prefix value = suffix to this index - maxSuffix
+        // 3. use deque to keep the index of maxSuffix.
+
+        Deque<Integer> dq = new ArrayDeque<>();
+        dq.offerLast(2 * n);
+        long[] suf = new long[2 * n + 1];
+        boolean[] can = new boolean[n];
+
+        for (int i = 2 * n - 1; i >= 0; i--) {
+            suf[i] = suf[i + 1] + net[i];
+            if (i < n) can[i] = suf[i] - suf[dq.peekFirst()] >= 0;
+
+            while (!dq.isEmpty() && suf[i] > suf[dq.peekLast()]) {
                 dq.pollLast();
             }
             dq.offerLast(i);
-            if (i - dq.peekFirst() == m) dq.pollFirst();
+            if (dq.peekFirst() - i == n) dq.pollFirst();
         }
 
-        w.println(res);
+        net[0] = net[n] = o[0] - d[n - 1];
+        for (int i = 1; i < n; i++) {
+            net[i] = net[i + n] = o[i] - d[i - 1];
+        }
+
+        dq = new ArrayDeque<>();
+        long[] pre = new long[2 * n + 1];
+        for (int i = 1; i <= 2 * n; i++) {
+            pre[i] = pre[i - 1] + net[i - 1];
+            if (i > n) can[i - n - 1] |= pre[i] - pre[dq.peekFirst()] >= 0;
+
+            while (!dq.isEmpty() && pre[i] > pre[dq.peekLast()]) {
+                dq.pollLast();
+            }
+            dq.offerLast(i);
+            if (i - dq.peekFirst() == n) dq.pollFirst();
+        }
+
+        for (int i = 0; i < n; i++) {
+            w.println(can[i] ? "TAK" : "NIE");
+        }
+
+
         w.flush();
         w.close();
     }
+
 
 
     static class InputReader
@@ -220,7 +259,7 @@ public class Acwing135_MaxSubarraySumLessThanM implements Runnable
 
     public static void main(String args[]) throws Exception
     {
-        new Thread(null, new Acwing135_MaxSubarraySumLessThanM(),"Main",1<<27).start();
+        new Thread(null, new Acwing1088_GasStation_MaxPrefix(),"Main",1<<27).start();
     }
 
 }
